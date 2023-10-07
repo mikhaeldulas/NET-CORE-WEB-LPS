@@ -1,0 +1,270 @@
+﻿@model IEnumerable<WebApplication11.Model.ProductsModel>
+
+    @{
+    ViewData["Title"] = "Index";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    }
+
+    <h1>Index</h1>
+
+    <p>
+        <button type="button" class="btn btn-success btncreate">
+            Create
+        </button>
+    </p>
+    <p>
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        <input class="form-control" id="txtsearch" />
+                    </th>
+                    <th>
+                        <input type="button" class="btn btn-info btnsearch" onclick="myfunction()" value="Search" />
+                    </th>
+                </tr>
+            </thead>
+        </table>
+
+
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                   Nama Barang
+                </th>
+                <th>
+                    Kode Barang
+                </th>
+                <th>
+                   Jumlah Barang
+                </th>
+                <th>
+                  Tanggal
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @item.nama_barang
+                </td>
+                <td>
+                    @item.kode_barang
+                </td>
+                <td>
+                    @item.jumlah_barang
+                </td>
+                <td>
+                    @item.tanggal
+                </td>
+                <td>
+
+
+                    <button type="button" class="btn btn-primary btnedit" data-id="@item.id" data-kode="@item.kode_barang" data-barang="@item.nama_barang" data-jumlah="@item.jumlah_barang" data-tanggal="@item.tanggal">
+                        Edit
+                    </button>
+                </td>
+            </tr>
+}
+        </tbody>
+    </table>
+
+
+    <div class="modal fade" id="modals" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="Update" method="post" asp-controller="Home">
+                        <input type="hidden" asp-for="Brg.id" id="idBrg" />
+
+                        <div class="form-group">
+                            <label asp-for="Brg.kode_barang_">Kode Barang</label>
+                            <input asp-for="Brg.kode_barang_" class="form-control" id="kodeBrg" />
+                            <span asp-validation-for="Brg.kode_barang_" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Brg.nama_barang">Nama Barang</label>
+                            <input asp-for="Brg.nama_barang" class="form-control" id="namaBrg" />
+                            <span asp-validation-for="Brg.nama_barang" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Brg.jumlah_barang">Jumlah Barang</label>
+                            <input asp-for="Brg.jumlah_barang" class="form-control" id="jumlahBrg" />
+                            <span asp-validation-for="Brg.jumlah_barang" class="text-danger"></span>
+                        </div><br>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btnsave" id="btnsave">Save</button>
+                            <button type="button" class="btn btn-danger btndelete" id="btndelete">Delete</button>
+                        </div>
+                    </form><br>
+                    <div class="modal-footer">
+                        @*<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script>
+                let Mode = '';
+
+        function myfunction() {
+
+            let id_ = $("#txtsearch").val();
+            let url = '@Url.Action("Index", "Product", new { Search = "__id__" })';
+            window.location.href = url.replace('__id__', id_);
+        }
+
+
+
+
+                $(".btnedit").click(function () {
+                    Mode = 'edit';
+                    let id_ = $(this).attr("data-id");
+                    let kode_barang_=$(this).attr("data-kode");
+                    let nama_barang = $(this).attr("data-barang");
+                    let jumlah_barang = $(this).attr("data-jumlah");
+                    let tanggal = $(this).attr("data-tanggal");
+                    $('#btndelete').prop('disabled', false);
+                    $.ajax({
+                        url: "@Url.Action("Details", "Product")",
+                        type: "GET",
+                        //dataType: "html",
+                        data: {id:id_},
+                        success: function (result) {
+                            //console.log(nama_barang);
+                            $('#kodeBrg').prop('disabled', true);
+                            $('#idBrg').val(id_);
+                            $('#namaBrg').val(nama_barang);
+                            $('#kodeBrg').val(kode_barang_);
+                            $('#jumlahBrg').val(jumlah_barang);
+                            $("#modals .modal-title").html("Edit");
+                            $("#modals").modal("show");
+                            //Mode = '';
+                        }
+                    });
+
+        });
+
+                $(".btncreate").click(function () {
+                    Mode = 'create';
+                    $('#btndelete').prop('disabled', true);
+                    $('#kodeBrg').prop('disabled', false);
+                    $('#idBrg').val('');
+                    $('#namaBrg').val('');
+                    $('#kodeBrg').val('');
+                    $('#jumlahBrg').val('');
+                    $("#modals .modal-title").html("Create");
+                    $("#modals").modal("show");
+                    //Mode = '';
+                });
+
+                $(".btnsave").click(function () {
+                    let today = new Date();
+                    let dd = String(today.getDate()).padStart(2, '0');
+                    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                    let yyyy = today.getFullYear();
+
+                    today = yyyy + '-' + mm + '-' + dd;
+                    if (Mode == 'create') {
+                        let id_ = 0;
+                        let kode_barang_ = $('#kodeBrg').val();
+                        let nama_barang = $('#namaBrg').val();
+                        let jumlah_barang = $('#jumlahBrg').val();
+                        let tgl = today;
+                        let dtjson = {
+                            id: id_,
+                            nama_barang: nama_barang,
+                            kode_barang: kode_barang_,
+                            jumlah_barang: jumlah_barang,
+                            tanggal: tgl
+                        };
+                        $.ajax({
+                            url: "@Url.Action("Create", "Product")",
+                            type: "GET",
+                            data: dtjson,
+                            success: function (result) {
+
+                                $('#idBrg').val('');
+                                $('#namaBrg').val('');
+                                $('#kodeBrg').val('');
+                                $('#jumlahBrg').val('');
+                                Mode = '';
+                                alert(result);
+                                location.reload();
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                alert(xhr.status);
+                            }
+
+                        });
+
+                    }
+                    else if (Mode == 'edit') {
+                        let id_ = $('#idBrg').val();
+                        let kode_barang_ = $('#kodeBrg').val();
+                        let nama_barang = $('#namaBrg').val();
+                        let jumlah_barang = $('#jumlahBrg').val();
+                        let tgl = today;
+                        let dtjson = {
+                            id: id_,
+                            nama_barang: nama_barang,
+                            kode_barang: kode_barang_,
+                            jumlah_barang: jumlah_barang,
+                            tanggal: tgl
+                        };
+                        $.ajax({
+                            url: "@Url.Action("Edit", "Product")",
+                            type: "GET",
+                            data: dtjson,
+                            success: function (result) {
+
+                                $('#idBrg').val('');
+                                $('#namaBrg').val('');
+                                $('#kodeBrg').val('');
+                                $('#jumlahBrg').val('');
+                                Mode = '';
+                                alert(result);
+                                location.reload();
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                alert(xhr.status);
+                            }
+
+                        });
+                    }
+                });
+
+              $(".btndelete").click(function () {
+                  let id_ = $('#idBrg').val();
+                    $.ajax({
+                        url: "@Url.Action("Delete", "Product")",
+                        type: "GET",
+                        //dataType: "html",
+                        data: {id:id_},
+                        success: function (result) {
+                            alert(result);
+                            location.reload();
+                        }
+                    });
+
+        });
+        </script>
