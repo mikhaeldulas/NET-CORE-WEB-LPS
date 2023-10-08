@@ -6,10 +6,10 @@
 
 3.Ubah connection string pada file appsettings.json menjadi seperti ini :
 
-  "ConnectionStrings": {
+`  "ConnectionStrings": {
     "LPS": "Server=localhost;Initial Catalog=[NamaDatabase];Integrated Security=True;"
   }
-
+`
 
   4.Jalankan aplikasi dengan menekan tombol RUN / "F5" pada visual studio.
   
